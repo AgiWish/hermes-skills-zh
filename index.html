@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hermes Skills 使用指南</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:    #2563eb;
+      --blue-lt: #eff6ff;
+      --green:   #16a34a;
+      --green-lt:#f0fdf4;
+      --gray-50: #f8fafc;
+      --gray-100:#f1f5f9;
+      --gray-200:#e2e8f0;
+      --gray-400:#94a3b8;
+      --gray-600:#475569;
+      --gray-800:#1e293b;
+      --radius:  8px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-800);
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--blue);
+      color: #fff;
+      padding: 28px 40px 24px;
+    }
+    header h1 { font-size: 22px; font-weight: 700; letter-spacing: -.3px; }
+    header p  { margin-top: 4px; font-size: 14px; opacity: .85; }
+    .header-meta { margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 20px; padding: 3px 12px; font-size: 12px;
+    }
+
+    /* ── Layout ── */
+    .layout { display: flex; max-width: 1200px; margin: 0 auto; padding: 32px 20px; gap: 28px; }
+
+    /* ── Sidebar ── */
+    aside {
+      width: 220px; flex-shrink: 0;
+      position: sticky; top: 20px; align-self: flex-start;
+    }
+    .sidebar-box {
+      background: #fff; border: 1px solid var(--gray-200);
+      border-radius: var(--radius); padding: 16px; font-size: 13px;
+    }
+    .sidebar-box h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--gray-400); margin-bottom: 10px; }
+    .sidebar-box a  { display: block; padding: 6px 8px; border-radius: 5px; color: var(--gray-600); text-decoration: none; }
+    .sidebar-box a:hover { background: var(--gray-100); color: var(--blue); }
+    .filter-group { margin-top: 16px; }
+    .filter-btn {
+      display: inline-block; margin: 2px; padding: 3px 10px;
+      border: 1px solid var(--gray-200); border-radius: 20px;
+      font-size: 12px; cursor: pointer; background: #fff;
+      color: var(--gray-600); transition: all .15s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--blue); border-color: var(--blue); color: #fff;
+    }
+
+    /* ── Cards ── */
+    main { flex: 1; min-width: 0; }
+    .search-bar {
+      display: flex; gap: 8px; margin-bottom: 20px;
+    }
+    .search-bar input {
+      flex: 1; padding: 8px 14px; border: 1px solid var(--gray-200);
+      border-radius: var(--radius); font-size: 14px; outline: none;
+      background: #fff;
+    }
+    .search-bar input:focus { border-color: var(--blue); }
+
+    .skill-grid { display: flex; flex-direction: column; gap: 16px; }
+    .skill-card {
+      background: #fff; border: 1px solid var(--gray-200);
+      border-radius: var(--radius); overflow: hidden;
+      transition: box-shadow .15s;
+    }
+    .skill-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+    .card-header {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 18px 20px; cursor: pointer; user-select: none;
+    }
+    .skill-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .card-title { flex: 1; }
+    .card-title h2 { font-size: 15px; font-weight: 600; }
+    .card-title .cmd { font-size: 12px; color: var(--blue); font-family: monospace; margin-top: 2px; }
+    .card-title p  { font-size: 13px; color: var(--gray-600); margin-top: 4px; }
+    .card-tags { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+    .tag {
+      font-size: 11px; padding: 1px 8px; border-radius: 20px;
+      background: var(--gray-100); color: var(--gray-600);
+    }
+    .tag.productivity { background: var(--blue-lt); color: var(--blue); }
+    .tag.communication { background: var(--green-lt); color: var(--green); }
+
+    .chevron { font-size: 16px; color: var(--gray-400); transition: transform .2s; flex-shrink: 0; margin-top: 2px; }
+    .skill-card.open .chevron { transform: rotate(180deg); }
+
+    .card-body { display: none; padding: 0 20px 20px; border-top: 1px solid var(--gray-100); }
+    .skill-card.open .card-body { display: block; }
+
+    .section-title {
+      font-size: 11px; text-transform: uppercase; letter-spacing: .7px;
+      color: var(--gray-400); margin: 16px 0 8px; font-weight: 600;
+    }
+    .when-list { list-style: none; }
+    .when-list li {
+      padding: 4px 0; font-size: 13px; color: var(--gray-600);
+      padding-left: 16px; position: relative;
+    }
+    .when-list li::before { content: "·"; position: absolute; left: 4px; color: var(--blue); }
+
+    .cmd-block {
+      background: var(--gray-800); color: #e2e8f0;
+      border-radius: 6px; padding: 12px 14px;
+      font-family: monospace; font-size: 12.5px; line-height: 1.8;
+      overflow-x: auto; white-space: pre;
+    }
+    .cmd-block .comment { color: #64748b; }
+    .cmd-block .flag    { color: #7dd3fc; }
+
+    .platforms { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .platform-tag {
+      font-size: 11px; padding: 2px 10px; border-radius: 20px;
+      background: var(--gray-100); color: var(--gray-600);
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center; padding: 24px; font-size: 12px; color: var(--gray-400);
+      border-top: 1px solid var(--gray-200); margin-top: 8px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 720px) {
+      aside { display: none; }
+      header { padding: 20px; }
+      .layout { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🚀 Hermes Skills 使用指南</h1>
+  <p>8 个中文职场 AI 技能，覆盖日报、邮件、会议、绩效等高频办公场景</p>
+  <div class="header-meta">
+    <span class="badge">📦 8 个技能</span>
+    <span class="badge">🏢 职场场景</span>
+    <span class="badge">💬 微信 / 飞书 / 钉钉</span>
+    <span class="badge">🌐 中文优化</span>
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <div class="sidebar-box">
+      <h3>快速导航</h3>
+      <a href="#daily-standup-zh">📅 日报 / 站会</a>
+      <a href="#email-formal-zh">✉️ 商务邮件</a>
+      <a href="#leave-request-zh">🏖 请假申请</a>
+      <a href="#meeting-minutes-zh">📋 会议纪要</a>
+      <a href="#okr-tracker-zh">📊 OKR 追踪</a>
+      <a href="#performance-review-zh">⭐ 绩效自评</a>
+      <a href="#wechat-reply-zh">💬 微信回复</a>
+      <a href="#weekly-report-zh">📝 周报生成</a>
+      <div class="filter-group">
+        <h3 style="margin-top:12px">按分类筛选</h3>
+        <span class="filter-btn active" data-filter="all">全部</span>
+        <span class="filter-btn" data-filter="productivity">效率</span>
+        <span class="filter-btn" data-filter="communication">沟通</span>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="搜索技能名称或使用场景…" />
+    </div>
+
+    <div class="skill-grid" id="skillGrid">
+
+      <!-- 日报/站会 -->
+      <div class="skill-card" id="daily-standup-zh" data-category="productivity" data-keywords="日报 站会 每日 今日 完成 计划 阻塞 微信 飞书 钉钉">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="skill-icon" style="background:#eff6ff">📅</div>
+          <div class="card-title">
+            <h2>日报 / 站会报告</h2>
+            <div class="cmd">/daily-standup-zh</div>
+            <p>输入今天做的事，自动生成标准三段式日报（昨日完成 / 今日计划 / 风险阻塞）</p>
+            <div class="card-tags">
+              <span class="tag productivity">效率</span>
+              <span class="tag">日报</span>
+              <span class="tag">站会</span>
+            </div>
+          </div>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="card-body">
+          <div class="section-title">适用场景</div>
+          <ul class="when-list">
+            <li>「帮我写日报」「生成今天的站会内容」</li>
+            <li>「今天完成了 X，明天要做 Y」</li>
+            <li>群里有人 @你 发日报</li>
+          </ul>
+          <div class="section-title">快速用法</div>
+          <div class="cmd-block"><span class="flag">/daily-standup-zh</span> [今日完成的工作]
+
+<span class="comment"># 可选参数</span>
+--tomorrow=[明日计划]   <span class="comment"># 明确指定明日计划</span>
+--block=[阻塞事项]      <span class="comment"># 有需要同步的阻塞</span>
+--style=简洁            <span class="comment"># 纯文字，适合微信群</span>
+--style=标准            <span class="comment"># 带 emoji 标题（默认）</span></div>
+          <div class="section-title">支持平台</div>
+          <div class="platforms">
+            <span class="platform-tag">💬 微信</span>
+            <span class="platform-tag">🐦 飞书</span>
+            <span class="platform-tag">📌 钉钉</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 商务邮件 -->
+      <div class="skill-card" id="email-formal-zh" data-category="communication" data-keywords="邮件 商务 正式 跟进 催款 道歉 提案 感谢 确认 拒绝">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="skill-icon" style="background:#f0fdf4">✉️</div>
+          <div class="card-title">
+            <h2>商务邮件</h2>
+            <div class="cmd">/email-formal-zh</div>
+            <p>描述邮件场景，自动生成结构完整、语气得体的正式中文邮件</p>
+            <div class="card-tags">
+              <span class="tag communication">沟通</span>
+              <span class="tag">邮件</span>
+              <span class="tag">商务</span>
+            </div>
+          </div>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="card-body">
+          <div class="section-title">适用场景</div>
+          <ul class="when-list">
+            <li>「帮我写一封邮件」「起草一封商务邮件」</li>
+            <li>催进度 / 道歉 / 提案 / 感谢 / 确认 / 拒绝</li>
+            <li>需要正式书面记录的对外沟通</li>
+          </ul>
+          <div class="section-title">快速用法</div>
+          <div class="cmd-block"><span class="flag">/email-formal-zh</span> [场景描述]
+
+<span class="comment"># 常用场景关键词</span>
+跟进 | 催促 | 道歉 | 提案 | 感谢 | 确认 | 拒绝 | 投诉</div>
+          <div class="section-title">支持平台</div>
+          <div class="platforms">
+            <span class="platform-tag">🐦 飞书</span>
+            <span class="platform-tag">📌 钉钉</span>
+            <span class="platform-tag">📧 邮件客户端</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 请假申请 -->
+      <div class="skill-card" id="leave-request-zh" data-category="communication" data-keywords="请假 事假 病假 年假 调休 申请 审批 上级">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="skill-icon" style="background:#fefce8">🏖</div>
+          <div class="card-title">
+            <h2>请假申请</h2>
+            <div class="cmd">/leave-request-zh</div>
+            <p>一句话描述请假原因，自动生成正式请假申请，支持正式 / 微信消息版</p>
+            <div class="card-tags">
+              <span class="tag communication">沟通</span>
+              <span class="tag">请假</span>
+              <span class="tag">申请</span>
+            </div>
+          </div>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="card-body">
+          <div class="section-title">适用场景</div>
+          <ul class="when-list">
+            <li>「帮我写请假申请」「我要请假，帮我说一下」</li>
+            <li>病假、事假、年假、调休各类假期</li>
+            <li>需要正式书面申请或微信/钉钉消息告知上级</li>
+          </ul>
+          <div class="section-title">快速用法</div>
+          <div class="cmd-block"><span class="flag">/leave-request-zh</span> [请假原因] [时间]
+
+--style=正式    <span class="comment"># 正式书面申请（默认）</span>
+--style=微信    <span class="comment"># 微信/钉钉消息版</span>
+--type=事假|病假|年假|调休</div>
+          <div class="section-title">支持平台</div>
+          <div class="platforms">
+            <span class="platform-tag">💬 微信</span>
+            <span class="platform-tag">🐦 飞书</span>
+            <span class="platform-tag">📌 钉钉</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 会议纪要 -->
+      <div class="skill-card" id="meeting-minutes-zh" data-category="productivity" data-keywords="会议 纪要 记录 决策 行动项 负责人 截止时间 总结">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="skill-icon" style="background:#fdf4ff">📋</div>
+          <div class="card-title">
+            <h2>会议纪要</h2>
+            <div class="cmd">/meeting-minutes-zh</div>
+            <p>粘贴会议文字稿或要点，自动提取决策 / 行动项 / 负责人，生成结构化纪要</p>
+            <div class="card-tags">
+              <span class="tag productivity">效率</span>
+              <span class="tag">会议</span>
+              <span class="tag">纪要</span>
+            </div>
+          </div>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="card-body">
+          <div class="section-title">适用场景</div>
+          <ul class="when-list">
+            <li>「帮我整理会议纪要」「写一下会议记录」</li>
+            <li>粘贴录音转写文字稿，自动结构化</li>
+            <li>「刚开完会，帮我总结一下」</li>
+          </ul>
+          <div class="section-title">快速用法</div>
+          <div class="cmd-block"><span class="flag">/meeting-minutes-zh</span> [会议文字记录或要点]
+
+--format=标准    <span class="comment"># 标准纪要格式（默认）</span>
+--format=简报    <span class="comment"># 只输出决策和行动项</span>
+--format=邮件    <span class="comment"># 适合发给参会人的邮件版</span></div>
+          <div class="section-title">支持平台</div>
+          <div class="platforms">
+            <span class="platform-tag">💬 微信</span>
+            <span class="platform-tag">🐦 飞书</span>
+            <span class="platform-tag">📌 钉钉</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- OKR 追踪 -->
+      <div class="skill-card" id="okr-tracker-zh" data-category="productivity" data-keywords="OKR 目标 关键结果 进度 季度 汇报 复盘 KR">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="skill-icon" style="background:#fff7ed">📊</div>
+          <div class="card-title">
+            <h2>OKR 进度追踪</h2>
+            <div class="cmd">/okr-tracker-zh</div>
+            <p>录入目标和关键结果，生成结构化进度报告，支持向上汇报和自我复盘两种版本</p>
+            <div class="card-tags">
+              <span class="tag productivity">效率</span>
+              <span class="tag">OKR</span>
+              <span class="tag">目标管理</span>
+            </div>
+          </div>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="card-body">
+          <div class="section-title">适用场景</div>
+          <ul class="when-list">
+            <li>「帮我更新 OKR 进度」「整理一下目标完成情况」</li>
+            <li>季度末向上汇报 OKR 完成情况</li>
+            <li>周期性自我复盘和进度同步</li>
+          </ul>
+          <div class="section-title">快速用法</div>
+          <div class="cmd-block"><span class="flag">/okr-tracker-zh</span> [目标描述和当前进度]
+
+--format=汇报    <span class="comment"># 向上汇报版（默认）</span>
+--format=复盘    <span class="comment"># 自我复盘版，含原因分析</span>
+--period=Q2      <span class="comment"># 指定季度</span></div>
+          <div class="section-title">支持平台</div>
+          <div class="platforms">
+            <span class="platform-tag">💬 微信</span>
+            <span class="platform-tag">🐦 飞书</span>
+            <span class="platform-tag">📌 钉钉</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 绩效自评 -->
+      <div class="skill-card" id="performance-review-zh" data-category="productivity" data-keywords="绩效 自评 STAR 季度 年度 成果 项目 汇报">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="skill-icon" style="background:#fff1f2">⭐</div>
+          <div class="card-title">
+            <h2>绩效自评</h2>
+            <div class="cmd">/performance-review-zh</div>
+            <p>输入工作成果，自动生成符合 STAR 法则的绩效自评，支持积极 / 客观两种语气</p>
+            <div class="card-tags">
+              <span class="tag productivity">效率</span>
+              <span class="tag">绩效</span>
+              <span class="tag">STAR</span>
+            </div>
+          </div>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="card-body">
+          <div class="section-title">适用场景</div>
+          <ul class="when-list">
+            <li>「帮我写绩效自评」「季度/年度绩效怎么写」</li>
+            <li>「我这季度做了 X，帮我整理成绩效」</li>
+            <li>提到 OKR 完成情况、绩效季时自动触发</li>
+          </ul>
+          <div class="section-title">快速用法</div>
+          <div class="cmd-block"><span class="flag">/performance-review-zh</span> [工作成果描述]
+
+--tone=积极    <span class="comment"># 突出亮点（默认）</span>
+--tone=客观    <span class="comment"># 如实陈述，不夸大</span>
+--period=Q3    <span class="comment"># 指定考核周期</span>
+--format=STAR  <span class="comment"># 严格 STAR 格式</span></div>
+          <div class="section-title">支持平台</div>
+          <div class="platforms">
+            <span class="platform-tag">🐦 飞书</span>
+            <span class="platform-tag">📌 钉钉</span>
+            <span class="platform-tag">📄 通用系统</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 微信回复 -->
+      <div class="skill-card" id="wechat-reply-zh" data-category="communication" data-keywords="微信 回复 上级 下级 同级 客户 消息 职场 语气">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="skill-icon" style="background:#f0fdf4">💬</div>
+          <div class="card-title">
+            <h2>微信职场回复</h2>
+            <div class="cmd">/wechat-reply-zh</div>
+            <p>粘贴收到的微信消息，根据对方身份（上级 / 同级 / 下级 / 客户）自动生成得体回复</p>
+            <div class="card-tags">
+              <span class="tag communication">沟通</span>
+              <span class="tag">微信</span>
+              <span class="tag">职场回复</span>
+            </div>
+          </div>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="card-body">
+          <div class="section-title">适用场景</div>
+          <ul class="when-list">
+            <li>「帮我回这条微信」「怎么回复这个」</li>
+            <li>「老板发来消息说…」「客户问我…」</li>
+            <li>棘手消息不知道如何措辞时</li>
+          </ul>
+          <div class="section-title">快速用法</div>
+          <div class="cmd-block"><span class="flag">/wechat-reply-zh</span> [收到的消息]
+
+--from=上级     <span class="comment"># 对方是你的上级</span>
+--from=同级     <span class="comment"># 对方是同事</span>
+--from=下级     <span class="comment"># 对方是你的下属</span>
+--from=客户     <span class="comment"># 对方是外部客户/甲方</span>
+--tone=正式|友好|简短</div>
+          <div class="section-title">支持平台</div>
+          <div class="platforms">
+            <span class="platform-tag">💬 微信</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 周报生成 -->
+      <div class="skill-card" id="weekly-report-zh" data-category="productivity" data-keywords="周报 工作总结 本周 计划 汇报 飞书 钉钉 微信">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="skill-icon" style="background:#eff6ff">📝</div>
+          <div class="card-title">
+            <h2>周报生成</h2>
+            <div class="cmd">/weekly-report-zh</div>
+            <p>输入本周工作要点，自动生成结构化周报，支持汇报风格 / 数据导向 / 简洁版三种模板</p>
+            <div class="card-tags">
+              <span class="tag productivity">效率</span>
+              <span class="tag">周报</span>
+              <span class="tag">工作总结</span>
+            </div>
+          </div>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="card-body">
+          <div class="section-title">适用场景</div>
+          <ul class="when-list">
+            <li>「帮我写周报」「生成周报」「写一下本周工作总结」</li>
+            <li>「本周完成了…」「这周做了…」</li>
+            <li>发送了工作内容列表但没有格式时</li>
+          </ul>
+          <div class="section-title">快速用法</div>
+          <div class="cmd-block"><span class="flag">/weekly-report-zh</span> [本周工作要点]
+
+--style=汇报    <span class="comment"># 向上汇报风格，强调成果价值（默认）</span>
+--style=数据    <span class="comment"># 数据导向，突出量化指标</span>
+--style=简洁    <span class="comment"># 极简版，适合钉钉/微信群</span></div>
+          <div class="section-title">支持平台</div>
+          <div class="platforms">
+            <span class="platform-tag">💬 微信</span>
+            <span class="platform-tag">🐦 飞书</span>
+            <span class="platform-tag">📌 钉钉</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /skill-grid -->
+  </main>
+</div>
+
+<footer>
+  © 2025 AgiWish · Hermes Skills · MIT License
+</footer>
+
+<script>
+  function toggle(header) {
+    const card = header.parentElement;
+    card.classList.toggle('open');
+  }
+
+  // Search
+  const input = document.getElementById('searchInput');
+  input.addEventListener('input', filter);
+
+  let activeCategory = 'all';
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeCategory = btn.dataset.filter;
+      filter();
+    });
+  });
+
+  function filter() {
+    const q = input.value.trim().toLowerCase();
+    document.querySelectorAll('.skill-card').forEach(card => {
+      const kw = card.dataset.keywords || '';
+      const cat = card.dataset.category || '';
+      const titleText = card.querySelector('h2').textContent.toLowerCase();
+      const desc = card.querySelector('.card-title p').textContent.toLowerCase();
+      const matchSearch = !q || kw.includes(q) || titleText.includes(q) || desc.includes(q);
+      const matchCat = activeCategory === 'all' || cat === activeCategory;
+      card.style.display = matchSearch && matchCat ? '' : 'none';
+    });
+  }
+
+  // Anchor auto-open
+  if (location.hash) {
+    const el = document.querySelector(location.hash);
+    if (el) el.classList.add('open');
+  }
+</script>
+</body>
+</html>
