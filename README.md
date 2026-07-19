@@ -1,8 +1,8 @@
 # Hermes Skills 中文职场技能库
 
-> 21 条即装即用的中文 Claude Code Skills，覆盖通用办公 / AI 产品经理 / 技术 PM 三个方向
+> 22 条即装即用的中文 Claude Code Skills，覆盖通用办公 / AI 产品经理 / 技术 PM / 社媒市场四个方向
 
-[![Skills](https://img.shields.io/badge/Skills-21条-cc785c?style=flat-square)](skills/)
+[![Skills](https://img.shields.io/badge/Skills-22条-cc785c?style=flat-square)](skills/)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-000?style=flat-square)](https://docs.anthropic.com/claude-code)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 
@@ -48,6 +48,12 @@
 | 用户调研整理 | `/user-research-zh` | 访谈记录 → 核心洞察+痛点矩阵+机会点 |
 | 功能优先级 | `/feature-priority-zh` | 需求列表 → RICE/MoSCoW 优先级矩阵 |
 
+### 📣 社媒与市场（1 条）
+
+| 技能 | 斜杠命令 | 一句话说明 |
+|------|----------|------------|
+| Xquik X/Twitter | `/x-twitter-scraper-zh` | X/Twitter 搜索、导出、监测、REST、MCP 与确认后的账号操作 |
+
 ### 🔧 技术 PM（3 条）
 
 | 技能 | 斜杠命令 | 一句话说明 |
@@ -89,6 +95,14 @@ skills/
 └── skill-name-zh/
     └── SKILL.md   # 包含 when-to-use / procedure / pitfalls / verification
 ```
+
+## Xquik x-twitter-scraper Skill
+
+完整 Skill 与参考文件：[Xquik x-twitter-scraper](https://github.com/Xquik-dev/x-twitter-scraper/tree/master/skills/x-twitter-scraper)
+
+需要认证的读取前，在运行环境中设置 `XQUIK_API_KEY`。默认只读。私有读取、写入、监测、Webhook 和批量任务必须先获得用户明确确认。
+
+Xquik is an independent third-party service. Not affiliated with X Corp. "Twitter" and "X" are trademarks of X Corp.
 
 `SKILL.md` 遵循 [Claude Code Skills 规范](https://docs.anthropic.com/claude-code/skills)，可直接被 Claude Code 识别和调用。
 
